@@ -1,0 +1,2 @@
+serviceClass: gr.sperfect.jukebox.web.client.GreetingService
+path: 296824AE0840B5F41AF72C08FF308F6E.gwt.rpc

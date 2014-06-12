@@ -1,3 +1,2 @@
 # Module jukebox
 # RPC service class, partial path of RPC policy file
-gr.sperfect.jukebox.web.client.GreetingService, 296824AE0840B5F41AF72C08FF308F6E.gwt.rpc

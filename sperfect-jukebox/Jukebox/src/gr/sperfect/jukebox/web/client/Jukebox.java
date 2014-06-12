@@ -45,8 +45,8 @@ public class Jukebox implements EntryPoint {
 		
 		
 		// Create table for stock data.
-		playlistFlexTable.setText(0, 0, "Symbol");
-		playlistFlexTable.setText(0, 1, "Price");
+		playlistFlexTable.setText(0, 0, "order");
+		playlistFlexTable.setText(0, 1, "song");
 		playlistFlexTable.setText(0, 2, "Change");
 		playlistFlexTable.setText(0, 3, "Remove");
 
@@ -91,14 +91,17 @@ public class Jukebox implements EntryPoint {
 		final String symbol = newSongTextBox.getText().toUpperCase().trim(); 
 		newSongTextBox.setFocus(true);
 
+		/*
 	    // Stock code must be between 1 and 10 chars that are numbers, letters, or dots.
 	    if (!symbol.matches("^[0-9A-Z\\.]{1,10}$")) {
 	      Window.alert("'" + symbol + "' is not a valid symbol.");
 	      newSongTextBox.selectAll();
 	      return;
 	    }
-
+*/
 	    newSongTextBox.setText("");
+	    
+	    Window.alert("Hello, Jukebox");
 
 	    // TODO Don't add the stock if it's already in the table.
 

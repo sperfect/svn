@@ -10,6 +10,58 @@ h1 {
   text-align: center;
 }
 
+body {
+  padding: 10px;
+}
+
+/* song list header row */
+.songListHeader {
+  background-color: #2062B8;
+  color: white;   
+  font-style: italic;
+}
+
+/* stock list flex table */
+.songList {
+  border: 1px solid silver;
+  padding: 2px;
+  margin-bottom:6px;
+}
+
+/* stock list Price and Change fields */
+.songListNumericColumn {
+  text-align: right;
+  width:8em;
+}
+
+/* stock list Remove column */
+.songListRemoveColumn {
+  text-align: center;
+}
+
+/* Add Stock panel */
+.addPanel {
+  margin: 10px 0px 15px 0px;
+}
+
+/* stock list, the Remove button */
+.gwt-Button-remove {
+  width: 50px;
+}
+
+/* Dynamic color changes for the Change field */
+.noChange {
+  color: black;
+}
+
+.positiveChange {
+  color: green;
+}
+
+.negativeChange {
+  color: red;
+}
+
 .sendButton {
   display: block;
   font-size: 16pt;
@@ -32,3 +84,4 @@ h1 {
 #closeButton {
   margin: 15px 6px 6px;
 }
+

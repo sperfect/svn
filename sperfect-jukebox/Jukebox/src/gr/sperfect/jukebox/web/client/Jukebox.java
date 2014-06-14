@@ -2,19 +2,24 @@ package gr.sperfect.jukebox.web.client;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.user.client.Random;
+import com.google.gwt.jsonp.client.JsonpRequestBuilder;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -35,6 +40,9 @@ public class Jukebox implements EntryPoint {
 
 	private static final int REFRESH_INTERVAL = 5000; // ms
 
+	private static final String JSON_URL = GWT.getModuleBaseURL() 			+ "songList?q=";
+			//"http://localhost:8888/jukebox/songList?q=";
+
 	/**
 	 * The message displayed to the user when the server cannot be reached or
 	 * returns an error.
@@ -50,6 +58,7 @@ public class Jukebox implements EntryPoint {
 	private Button addSongButton = new Button("AddSong");
 	private Label lastUpdatedLabel = new Label();
 	private ArrayList<String> songs = new ArrayList<String>();
+	private Label errorMsgLabel = new Label();
 
 	/** * Entry point method. */
 	public void onModuleLoad() {
@@ -59,7 +68,7 @@ public class Jukebox implements EntryPoint {
 		playlistFlexTable.setText(0, 1, "song");
 		playlistFlexTable.setText(0, 2, "Change");
 		playlistFlexTable.setText(0, 3, "Remove");
-		
+
 		playlistFlexTable.setCellPadding(6);
 
 		playlistFlexTable.getRowFormatter().addStyleName(0, "songListHeader");
@@ -79,6 +88,10 @@ public class Jukebox implements EntryPoint {
 
 		// Assemble Main panel.
 		mainPanel.add(addPanel);
+		errorMsgLabel.setStyleName("errorMessage");
+		errorMsgLabel.setVisible(false);
+		mainPanel.add(errorMsgLabel);
+
 		mainPanel.add(playlistFlexTable);
 		mainPanel.add(lastUpdatedLabel);
 
@@ -116,26 +129,85 @@ public class Jukebox implements EntryPoint {
 	}
 
 	protected void refreshWatchList() {
-		final double MAX_PRICE = 100.0; // $100.00
-		final double MAX_PRICE_CHANGE = 0.02; // +/- 2%
 
-		SongInfo[] prices = new SongInfo[songs.size()];
-		for (int i = 0; i < songs.size(); i++) {
-			double price = Random.nextDouble() * MAX_PRICE;
-			double change = price * MAX_PRICE_CHANGE
-					* (Random.nextDouble() * 2.0 - 1.0);
-
-			prices[i] = new SongInfo(songs.get(i), price, change);
+		if (songs.size() == 0) {
+			return;
 		}
 
-		updateTable(prices);
+		String url = JSON_URL;
+
+		// Append watch list stock symbols to query URL.
+		Iterator<String> iter = songs.iterator();
+		while (iter.hasNext()) {
+			url += iter.next();
+			if (iter.hasNext()) {
+				url += "+";
+			}
+		}
+
+		url = URL.encode(url);
+
+		
+		// Send request to server and handle errors.
+		
+		//1 - same site
+		/*
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+		try {
+			Request request = builder.sendRequest(null, new RequestCallback() {
+
+				@Override
+				public void onResponseReceived(Request request,
+						Response response) {
+					// Auto-generated method stub
+					if (200 == response.getStatusCode()) {
+						updateList((JsArray<SongData>) JsonUtils.safeEval(response.getText()));
+					} else {
+						displayError("Couldn't retrieve JSON ("
+								+ response.getStatusText() + ")");
+					}
+				}
+
+				@Override
+				public void onError(Request request, Throwable e) {
+					// TODO Auto-generated method stub
+					displayError("Couldn't retrieve JSON" + e.getMessage());
+				}
+			});
+
+		} catch (RequestException e) {
+			displayError("Couldn't retrieve JSON (2) " + e.getMessage() );
+		}
+		*/
+		
+		//2 - cross site
+		JsonpRequestBuilder builder = new JsonpRequestBuilder();
+		builder.requestObject(url, new AsyncCallback<JsArray<SongData>>() {
+		      public void onFailure(Throwable caught) {
+		        displayError("Couldn't retrieve JSON " + caught.getMessage());
+		      }
+		      
+		      public void onSuccess(JsArray<SongData> data) {
+		    	  if (data == null) {
+		    	      displayError("Couldn't retrieve JSON null!");
+		    	      return;
+		    	    }
+
+		    	    updateList(data);
+		      }
+		    });
+	}
+
+	protected void displayError(String error) {
+		errorMsgLabel.setText("Error: " + error);
+		errorMsgLabel.setVisible(true);
 
 	}
 
-	private void updateTable(SongInfo[] prices) {
+	private void updateList(JsArray<SongData> prices) {
 		// TODO Auto-generated method stub
-		for (int i = 0; i < prices.length; i++) {
-			updateTable(prices[i]);
+		for (int i = 0; i < prices.length(); i++) {
+			updateTable(prices.get(i));
 		}
 		// Display timestamp showing last refresh.
 		lastUpdatedLabel.setText("Last update : "
@@ -149,7 +221,7 @@ public class Jukebox implements EntryPoint {
 	 * @param price
 	 *            Stock data for a single row.
 	 */
-	private void updateTable(SongInfo price) {
+	private void updateTable(SongData price) {
 		// Make sure the stock is still in the stock table.
 		if (!songs.contains(price.getSymbol())) {
 			return;
@@ -168,20 +240,20 @@ public class Jukebox implements EntryPoint {
 
 		// Populate the Price and Change fields with new data.
 		playlistFlexTable.setText(row, 1, priceText);
-		//playlistFlexTable.setText(row, 2, changeText + " (" + changePercentText + "%)");
-		
-		Label changeWidget = (Label)playlistFlexTable.getWidget(row, 2);
-	    changeWidget.setText(changeText + " (" + changePercentText + "%)");
-	    
-	    String changeStyleName = "noChange";
-	    if (price.getChangePercent() < -0.1f) {
-	      changeStyleName = "negativeChange";
-	    }
-	    else if (price.getChangePercent() > 0.1f) {
-	      changeStyleName = "positiveChange";
-	    }
+		// playlistFlexTable.setText(row, 2, changeText + " (" +
+		// changePercentText + "%)");
 
-	    changeWidget.setStyleName(changeStyleName);
+		Label changeWidget = (Label) playlistFlexTable.getWidget(row, 2);
+		changeWidget.setText(changeText + " (" + changePercentText + "%)");
+
+		String changeStyleName = "noChange";
+		if (price.getChangePercent() < -0.1f) {
+			changeStyleName = "negativeChange";
+		} else if (price.getChangePercent() > 0.1f) {
+			changeStyleName = "positiveChange";
+		}
+
+		changeWidget.setStyleName(changeStyleName);
 	}
 
 	protected void addSong() {

@@ -21,8 +21,16 @@ public class JsonSongData extends HttpServlet {
 		Random rnd = new Random();
 
 		PrintWriter out = resp.getWriter();
-		out.println('[');
+		
 		String[] stockSymbols = req.getParameter("q").split(" ");
+		String callback = req.getParameter("callback");
+		if(callback != null && !callback.isEmpty())
+		{
+			out.print(callback+"(");		
+		}
+		
+		out.println('[');
+		
 		boolean firstSymbol = true;
 		for (String stockSymbol : stockSymbols) {
 
@@ -47,6 +55,11 @@ public class JsonSongData extends HttpServlet {
 			out.println("  }");
 		}
 		out.println(']');
+		
+		if(callback != null && !callback.isEmpty())
+		{
+			out.println(");");
+		}
 		out.flush();
 	}
 }

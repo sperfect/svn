@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
+import com.bramosystems.oss.player.core.client.AbstractMediaPlayer;
+import com.bramosystems.oss.player.core.client.PlayException;
+import com.bramosystems.oss.player.core.client.PlayerUtil;
+import com.bramosystems.oss.player.core.client.PluginNotFoundException;
+import com.bramosystems.oss.player.core.client.PluginVersionException;
+import com.bramosystems.oss.player.youtube.client.ChromelessPlayer;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
@@ -22,9 +28,11 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
@@ -40,8 +48,9 @@ public class Jukebox implements EntryPoint {
 
 	private static final int REFRESH_INTERVAL = 5000; // ms
 
-	private static final String JSON_URL = GWT.getModuleBaseURL() 			+ "songList?q=";
-			//"http://localhost:8888/jukebox/songList?q=";
+	private static final String JSON_URL = GWT.getModuleBaseURL()
+			+ "songList?q=";
+	// "http://localhost:8888/jukebox/songList?q=";
 
 	/**
 	 * The message displayed to the user when the server cannot be reached or
@@ -59,6 +68,8 @@ public class Jukebox implements EntryPoint {
 	private Label lastUpdatedLabel = new Label();
 	private ArrayList<String> songs = new ArrayList<String>();
 	private Label errorMsgLabel = new Label();
+
+	private AbstractMediaPlayer player = null;
 
 	/** * Entry point method. */
 	public void onModuleLoad() {
@@ -126,6 +137,39 @@ public class Jukebox implements EntryPoint {
 			}
 		});
 
+		SimplePanel panel = new SimplePanel(); // create panel to hold the
+												// player
+		
+		mainPanel.add(panel);
+
+		try {
+			
+			
+			// create the player, specifing URL of media
+			// player = new YouTubePlayer("video-id", "width", "height");
+			// player = new YouTubeIPlayer("JlYXp_3A64k", "100%", "350px");
+			player = new ChromelessPlayer("JlYXp_3A64k", "100%", "100%");
+
+			panel.setWidget(player); // add player to panel.
+		} catch (PluginVersionException e) {
+			// required Flash plugin version is not available,
+			// alert user possibly providing a link to the plugin download page.
+			panel.setWidget(new HTML(".. some nice message telling the "
+					+ "user to download plugin first .."));
+		} catch (PluginNotFoundException e) {
+			// required Flash plugin not found, display a friendly notice.
+			panel.setWidget(PlayerUtil.getMissingPluginNotice(e.getPlugin()));
+		} catch (Exception e) {
+			// required Flash plugin version is not available,
+			// alert user possibly providing a link to the plugin download page.
+			panel.setWidget(new HTML(".. some nice message telling the "
+					+ "user to download plugin first . . " + e.getMessage()));
+		}
+
+		
+		
+		
+
 	}
 
 	protected void refreshWatchList() {
@@ -147,55 +191,45 @@ public class Jukebox implements EntryPoint {
 
 		url = URL.encode(url);
 
-		
 		// Send request to server and handle errors.
-		
-		//1 - same site
+
+		// 1 - same site
 		/*
-		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-		try {
-			Request request = builder.sendRequest(null, new RequestCallback() {
+		 * RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+		 * try { Request request = builder.sendRequest(null, new
+		 * RequestCallback() {
+		 * 
+		 * @Override public void onResponseReceived(Request request, Response
+		 * response) { // Auto-generated method stub if (200 ==
+		 * response.getStatusCode()) { updateList((JsArray<SongData>)
+		 * JsonUtils.safeEval(response.getText())); } else {
+		 * displayError("Couldn't retrieve JSON (" + response.getStatusText() +
+		 * ")"); } }
+		 * 
+		 * @Override public void onError(Request request, Throwable e) { // TODO
+		 * Auto-generated method stub displayError("Couldn't retrieve JSON" +
+		 * e.getMessage()); } });
+		 * 
+		 * } catch (RequestException e) {
+		 * displayError("Couldn't retrieve JSON (2) " + e.getMessage() ); }
+		 */
 
-				@Override
-				public void onResponseReceived(Request request,
-						Response response) {
-					// Auto-generated method stub
-					if (200 == response.getStatusCode()) {
-						updateList((JsArray<SongData>) JsonUtils.safeEval(response.getText()));
-					} else {
-						displayError("Couldn't retrieve JSON ("
-								+ response.getStatusText() + ")");
-					}
-				}
-
-				@Override
-				public void onError(Request request, Throwable e) {
-					// TODO Auto-generated method stub
-					displayError("Couldn't retrieve JSON" + e.getMessage());
-				}
-			});
-
-		} catch (RequestException e) {
-			displayError("Couldn't retrieve JSON (2) " + e.getMessage() );
-		}
-		*/
-		
-		//2 - cross site
+		// 2 - cross site
 		JsonpRequestBuilder builder = new JsonpRequestBuilder();
 		builder.requestObject(url, new AsyncCallback<JsArray<SongData>>() {
-		      public void onFailure(Throwable caught) {
-		        displayError("Couldn't retrieve JSON " + caught.getMessage());
-		      }
-		      
-		      public void onSuccess(JsArray<SongData> data) {
-		    	  if (data == null) {
-		    	      displayError("Couldn't retrieve JSON null!");
-		    	      return;
-		    	    }
+			public void onFailure(Throwable caught) {
+				displayError("Couldn't retrieve JSON " + caught.getMessage());
+			}
 
-		    	    updateList(data);
-		      }
-		    });
+			public void onSuccess(JsArray<SongData> data) {
+				if (data == null) {
+					displayError("Couldn't retrieve JSON null!");
+					return;
+				}
+
+				updateList(data);
+			}
+		});
 	}
 
 	protected void displayError(String error) {
@@ -257,6 +291,16 @@ public class Jukebox implements EntryPoint {
 	}
 
 	protected void addSong() {
+		
+		try {
+			player.playMedia();
+		} catch (PlayException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			Window.alert(e.getMessage());
+		}
+		
+		
 		final String symbol = newSongTextBox.getText().toUpperCase().trim();
 		newSongTextBox.setFocus(true);
 

@@ -1,6 +1,7 @@
 package gr.sperfect.jukebox.web.core;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+
+import static gr.sperfect.jukebox.web.core.objectify.OfyService.ofy;
 import gr.sperfect.jukebox.web.core.objectify.Room;
 
 import java.io.IOException;
@@ -10,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.googlecode.objectify.Key;
-import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Result;
 
 @SuppressWarnings("serial")
@@ -20,7 +20,7 @@ public class JukeboxCoreServlet extends HttpServlet {
 		resp.setContentType("text/plain");
 		resp.getWriter().println("Hello, world");
 		
-		ObjectifyService.factory().register(Room.class);
+		//ObjectifyService.factory().register(Room.class);
 
 
 		Room r = new Room("test");

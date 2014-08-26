@@ -189,7 +189,7 @@ public class Jukebox implements EntryPoint {
 			}
 		}
 
-		url = URL.encode(url);
+		url = URL.encode(url); 
 
 		// Send request to server and handle errors.
 

@@ -11,9 +11,20 @@ public class Room {
 		// TODO Auto-generated constructor stub
 		this.name = name;
 		name2 = name;
+		//setLastSong(new Song("test/url"));
+	}
+	
+	public Song getLastSong() {
+		return lastSong;
+	}
+
+	public void setLastSong(Song lastSong) {
+		this.lastSong = lastSong;
 	}
 	@Id public Long id;
     @Index public String name;
     String name2;
+    
+    private Song lastSong;
 
 }

@@ -7,7 +7,9 @@ import com.googlecode.objectify.ObjectifyService;
 public class OfyService {
 
 	 static {
-	        factory().register(Room.class);	        
+	        factory().register(Room.class);	   
+	        factory().register(Song.class);
+	        
 	        // ...etc
 	    }
 	 

@@ -34,6 +34,9 @@ public class JukeboxCoreServlet extends HttpServlet {
 		fetched1.name += "1";
 		ofy().save().entity(fetched1);
 		
+		resp.getWriter().println(fetched1.id);
+		
+		
 		 
 	}
 }

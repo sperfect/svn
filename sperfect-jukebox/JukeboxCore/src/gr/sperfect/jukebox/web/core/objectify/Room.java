@@ -10,8 +10,10 @@ public class Room {
 	public Room(String name) {
 		// TODO Auto-generated constructor stub
 		this.name = name;
+		name2 = name;
 	}
 	@Id public Long id;
     @Index public String name;
+    String name2;
 
 }

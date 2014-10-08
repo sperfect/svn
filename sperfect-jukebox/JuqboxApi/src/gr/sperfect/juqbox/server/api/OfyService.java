@@ -9,6 +9,9 @@ public class OfyService {
 	 static {
 	        factory().register(Room.class);	   
 	        factory().register(Song.class);
+	        factory().register(SongList.class);
+	        factory().register(User.class);
+	        factory().register(YoutubeSong.class);
 	        
 	        // ...etc
 	    }

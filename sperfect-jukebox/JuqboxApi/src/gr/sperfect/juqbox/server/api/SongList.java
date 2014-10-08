@@ -13,7 +13,7 @@ public class SongList {
 
 	@Id Long id;
 
-	 private SongList() {};
+	 SongList() {};
 	 
 	 @Load
 	 List<Ref<Song>> subordinates = new ArrayList<Ref<Song>>();

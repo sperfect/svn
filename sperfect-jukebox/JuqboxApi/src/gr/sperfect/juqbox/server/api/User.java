@@ -5,7 +5,14 @@ import com.googlecode.objectify.annotation.Id;
 
 @Entity
 public class User {
-	 @Id Long id;
+	@Id
+	Long id;
+	String name;
 
-	 private User() {};
+	private User() {
+	};
+
+	public User(String name) {
+		this.name = name;
+	}
 }

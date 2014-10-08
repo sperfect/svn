@@ -5,6 +5,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="com.google.gdt.eclipse.managedapis.MANAGED_API_CONTAINER/youtube-v3r117lv1.18.0-rc"/>
 	<classpathentry kind="lib" path="war/WEB-INF/lib/guava-18.0.jar"/>
-	<classpathentry kind="lib" path="war/WEB-INF/lib/objectify-5.0.5.jar"/>
+	<classpathentry kind="lib" path="war/WEB-INF/lib/objectify-5.0.5.jar" sourcepath="C:/Users/sperfect/.m2/repository/com/googlecode/objectify/objectify/5.0.5/objectify-5.0.5-sources.jar"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
 </classpath>
